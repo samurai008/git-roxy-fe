@@ -74,8 +74,35 @@ class App extends React.Component {
   }
 
   render() {
-    const protectedMenuItems = JSON.parse(localStorage.getItem('auth')).isAuthenticated ?
-      (
+    return (
+      <Router>
+        <div className="container">
+          <AuthButton />
+          <PrivateRoute path="/user" component={User} />
+          <PrivateRoute path="/events/:id?" component={Events} />
+        </div>
+      </Router>
+      );
+  }
+}
+
+const AuthButton = withRouter(
+  ({ history }) =>
+    JSON.parse(localStorage.getItem('auth')).isAuthenticated ? (
+      <div>
+        <p className="mt-2">
+          Welcome!{" " + JSON.parse(localStorage.getItem('auth')).userData['name']}
+          <button
+            onClick={() => {
+              localStorage.clear();
+              localStorage.setItem('auth', JSON.stringify(auth));
+              history.replace('/');
+            }}
+            className="btn btn-sm btn-danger float-right"
+          >
+            Sign out
+          </button>
+        </p>
         <ul className="list-inline">
           <li className="list-inline-item">
             <NavLink to="/user" className="btn" activeClassName="btn-primary">Your repositories</NavLink>
@@ -87,41 +114,7 @@ class App extends React.Component {
             {window.location.pathname}
           </li>
         </ul>
-      ) : '';
-
-    return (
-      <Router>
-        <div className="container">
-          <AuthButton />
-          {protectedMenuItems}
-          <Route path="/" render={props => (
-            <Redirect to={{pathname: "/login"}}/>
-          )} />
-          <Route path="/login" component={Login} />
-          <PrivateRoute path="/user" component={User} />
-          <PrivateRoute path="/events" component={Events} />
-        </div>
-      </Router>
-      );
-  }
-}
-
-const AuthButton = withRouter(
-  ({ history }) =>
-    JSON.parse(localStorage.getItem('auth')).isAuthenticated ? (
-      <p className="mt-2">
-        Welcome!{" " + JSON.parse(localStorage.getItem('auth')).userData['name']}
-        <button
-          onClick={() => {
-            localStorage.clear();
-            localStorage.setItem('auth', JSON.stringify(auth));
-            history.replace('/');
-          }}
-          className="btn btn-sm btn-danger float-right"
-        >
-          Sign out
-        </button>
-      </p>
+      </div>
     ) : (
       <Login />
     )
