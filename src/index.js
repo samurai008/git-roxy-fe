@@ -14,6 +14,8 @@ import User from './pages/User';
 import Events from './pages/Events';
 import {auth} from './store/auth';
 
+var isAuthenticating = false;
+
 function getUrlVars() {
   var vars = {};
   var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(
@@ -49,6 +51,7 @@ class App extends React.Component {
     }
 
     if (getUrlVars()["code"] && !JSON.parse(localStorage.getItem('auth')).isAuthenticated) {
+      isAuthenticating = true;
       fetch(
         "https://git-roxy.herokuapp.com/fetchToken?code=" + getUrlVars()["code"]
       )
@@ -67,6 +70,7 @@ class App extends React.Component {
             authObj.userData = data;
             console.log(authObj);
             localStorage.setItem('auth', JSON.stringify(authObj));
+            this.isAuthenticating = false;
             window.location.pathname = "/user";
           }
         });
@@ -79,7 +83,7 @@ class App extends React.Component {
         <div className="container">
           <AuthButton />
           <PrivateRoute path="/user" component={User} />
-          <PrivateRoute path="/events/:id?" component={Events} />
+          <PrivateRoute path="/events" component={Events} />
         </div>
       </Router>
       );
@@ -110,13 +114,10 @@ const AuthButton = withRouter(
           <li className="list-inline-item">
             <NavLink to="/events" className="btn" activeClassName="btn-primary">Your events</NavLink>
           </li>
-          <li className="list-inline-item">
-            {window.location.pathname}
-          </li>
         </ul>
       </div>
     ) : (
-      <Login />
+      <Login title={isAuthenticating ? 'Authenticating, please wait' : 'Login with Github'} />
     )
 );
 

@@ -20,7 +20,7 @@ export default class Login extends Component {
     return (
       <div style={loginDivWrapperStyle}>
         <a href={redirect_uri} className="btn btn-success">
-          Login with github
+          {this.props.title}
         </a>
       </div>
     )
